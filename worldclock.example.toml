@@ -1,0 +1,19 @@
+# Local clock
+[[clocks]]
+name = "💻"
+
+# At home
+[[clocks]]
+name = "🏠"
+tz = "Europe/Berlin"
+
+# Costa Rica
+[[clocks]]
+name = "🌴"
+tz = "America/Costa_Rica"
+
+# New York (EST)
+[[clocks]]
+name = "🗽"
+tz = "America/New_York"
+
