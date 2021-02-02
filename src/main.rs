@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use anyhow::{anyhow, bail, Error};
-use chrono::{DateTime, Local, NaiveDateTime, TimeZone, Utc};
+use anyhow::{anyhow, Error};
+use chrono::{DateTime, Local, Utc};
 use chrono_tz::Tz;
 use prettytable::{format::consts::FORMAT_CLEAN, Attr, Cell, Row, Table};
 use serde::Deserialize;
