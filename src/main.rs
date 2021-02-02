@@ -25,24 +25,24 @@ struct Args {
     ///
     /// Example:
     ///
-    /// ```
-    /// # Local clock
-    /// [[clocks]]
+    ///     # Local clock
+    ///     [[clocks]]
     ///
-    /// [[clocks]]
-    /// tz = "Europe/Berlin"
+    ///     [[clocks]]
+    ///     tz = "Europe/Berlin"
     ///
-    /// [[clocks]]
-    /// name = "Costa Rica"
-    /// tz = "America/Costa_Rica"
+    ///     [[clocks]]
+    ///     name = "Costa Rica"
+    ///     tz = "America/Costa_Rica"
     ///
-    /// [[clocks]]
-    /// name = "New York"
-    /// tz = "America/New_York"
-    /// ```
+    ///     [[clocks]]
+    ///     name = "New York"
+    ///     tz = "America/New_York"
     ///
+    #[structopt(verbatim_doc_comment, short, long)]
     config: Option<PathBuf>,
 
+    /*
     /// Instead of displaying the current time, use the specified time.
     // FIXME: Parse properly
     #[structopt(short, long)]
@@ -51,17 +51,14 @@ struct Args {
     /// If `--time` is used, it will be interpreted as UTC.
     #[structopt(short, long)]
     utc: bool,
-
-    /// Don't terminate and keep showing the time.
-    #[structopt(short, long)]
-    watch: bool,
+    */
 }
 
 #[serde_as]
 #[derive(Clone, Debug, Deserialize)]
 struct TzWrapper(#[serde_as(as = "DisplayFromStr")] Tz);
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Default)]
 struct Clock {
     name: Option<String>,
     tz: Option<TzWrapper>,
@@ -69,6 +66,7 @@ struct Clock {
 
 #[derive(Clone, Debug, Deserialize)]
 struct Config {
+    #[serde(default)]
     clocks: Vec<Clock>,
 }
 
@@ -100,15 +98,26 @@ fn print_clocks(clocks: &[Clock], time: DateTime<Utc>) {
 }
 
 fn main() -> Result<(), Error> {
-    let config_path = dirs::home_dir()
-        .ok_or_else(|| anyhow!("Could not determine home directory"))?
-        .join(".config/worldclock.toml");
-
-    let config: Config = toml::from_str(&std::fs::read_to_string(config_path)?)?;
-
     let args = Args::from_args();
 
-    let time = match (args.time, args.utc) {
+    let config_path = if let Some(config_path) = args.config {
+        config_path
+    }
+    else {
+        dirs::home_dir()
+            .ok_or_else(|| anyhow!("Could not determine home directory"))?
+            .join(".config/worldclock.toml")
+    };
+
+    let mut config: Config = toml::from_str(&std::fs::read_to_string(config_path)?)?;
+
+    // If no clocks are specified, we will add a local one.
+    if config.clocks.is_empty() {
+        config.clocks.push(Clock::default());
+    }
+
+    // TODO: Parse the --time option properly from the command line
+    /*let time = match (args.time, args.utc) {
         (Some(time), false) => Utc
             .from_local_datetime(&time)
             .single()
@@ -116,7 +125,9 @@ fn main() -> Result<(), Error> {
         (Some(time), true) => Utc.from_utc_datetime(&time),
         (None, false) => Utc::now(),
         (None, true) => bail!("--utc can only be used with --time."),
-    };
+    };*/
+
+    let time = Utc::now();
 
     print_clocks(&config.clocks, time);
 
