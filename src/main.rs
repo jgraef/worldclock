@@ -41,7 +41,6 @@ struct Args {
     ///
     #[structopt(verbatim_doc_comment, short, long)]
     config: Option<PathBuf>,
-
     /*
     /// Instead of displaying the current time, use the specified time.
     // FIXME: Parse properly
@@ -89,7 +88,7 @@ fn print_clocks(clocks: &[Clock], time: DateTime<Utc>) {
         let name = clock.name.as_ref().unwrap_or(&tz_name);
 
         table.add_row(Row::new(vec![
-            Cell::new(&name).with_style(Attr::Bold),
+            Cell::new(name).with_style(Attr::Bold),
             Cell::new(&local_time.format("%H:%M:%S").to_string()),
         ]));
     }
@@ -102,8 +101,7 @@ fn main() -> Result<(), Error> {
 
     let config_path = if let Some(config_path) = args.config {
         config_path
-    }
-    else {
+    } else {
         dirs::home_dir()
             .ok_or_else(|| anyhow!("Could not determine home directory"))?
             .join(".config/worldclock.toml")
