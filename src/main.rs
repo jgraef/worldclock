@@ -1,27 +1,43 @@
 use std::path::PathBuf;
 
-use anyhow::{anyhow, Error};
-use chrono::{DateTime, Local, Utc};
+use anyhow::{
+    anyhow,
+    Error,
+};
+use chrono::{
+    DateTime,
+    Local,
+    Utc,
+};
 use chrono_tz::Tz;
-use prettytable::{format::consts::FORMAT_CLEAN, Attr, Cell, Row, Table};
+use prettytable::{
+    format::consts::FORMAT_CLEAN,
+    Attr,
+    Cell,
+    Row,
+    Table,
+};
 use serde::Deserialize;
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{
+    serde_as,
+    DisplayFromStr,
+};
 use structopt::StructOpt;
 
 /// Shows the current time in multiple time zones.
-///
 #[derive(Clone, Debug, StructOpt)]
 struct Args {
-    /// Path to config file that specifies the timezones you want to have displayed.PathBuf
+    /// Path to config file that specifies the timezones you want to have
+    /// displayed.PathBuf
     ///
     /// If not specified, ~/.config/worldclock.toml will be used.
     ///
-    /// The file consists of a series of `[[clock]]` definitions that must specify a timezone
-    /// with the `tz` key. To list available timezones, you can use `timedatectl list-timezones`
-    /// (using systemd).
+    /// The file consists of a series of `[[clock]]` definitions that must
+    /// specify a timezone with the `tz` key. To list available timezones,
+    /// you can use `timedatectl list-timezones` (using systemd).
     ///
-    /// Optionally you can specify a custom name for the clock. If omitted, the name of the
-    /// time zone is used.
+    /// Optionally you can specify a custom name for the clock. If omitted, the
+    /// name of the time zone is used.
     ///
     /// Example:
     ///
@@ -38,10 +54,8 @@ struct Args {
     ///     [[clocks]]
     ///     name = "New York"
     ///     tz = "America/New_York"
-    ///
     #[structopt(verbatim_doc_comment, short, long)]
     config: Option<PathBuf>,
-
     /*
     /// Instead of displaying the current time, use the specified time.
     // FIXME: Parse properly
@@ -81,7 +95,8 @@ fn print_clocks(clocks: &[Clock], time: DateTime<Utc>) {
         if let Some(tz) = &clock.tz {
             local_time = time.with_timezone(&tz.0).naive_local();
             tz_name = tz.0.to_string();
-        } else {
+        }
+        else {
             local_time = time.with_timezone(&Local).naive_local();
             tz_name = "Local".to_string();
         }

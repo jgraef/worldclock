@@ -9,14 +9,13 @@ homepage = "https://github.com/jgraef/worldclock"
 repository = "https://github.com/jgraef/worldclock"
 license = "MIT"
 
-
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_with = "1.6"
-toml = "0.5"
+serde_with = "3.4"
+toml = "0.8"
 chrono = { version = "0.4", features = ["serde"] }
-chrono-tz = "0.5"
+chrono-tz = "0.8"
 structopt = "0.3"
 anyhow = "1.0"
-dirs = "3.0"
-prettytable-rs = "0.8"
+dirs = "5.0"
+prettytable-rs = "0.10"
