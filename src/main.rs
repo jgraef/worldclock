@@ -1,28 +1,14 @@
-use std::path::PathBuf;
+use std::{borrow::Cow, ops::Deref, path::PathBuf};
 
-use anyhow::{
-    anyhow,
-    Error,
-};
 use chrono::{
     DateTime,
     Local,
     Utc,
 };
-use chrono_tz::Tz;
-use prettytable::{
-    format::consts::FORMAT_CLEAN,
-    Attr,
-    Cell,
-    Row,
-    Table,
-};
+use prettytable::{format::consts::FORMAT_CLEAN, Attr, Cell, Row, Table};
 use serde::Deserialize;
-use serde_with::{
-    serde_as,
-    DisplayFromStr,
-};
 use structopt::StructOpt;
+use color_eyre::eyre::{eyre, Error};
 
 /// Shows the current time in multiple time zones.
 #[derive(Clone, Debug, StructOpt)]
@@ -68,14 +54,10 @@ struct Args {
     */
 }
 
-#[serde_as]
-#[derive(Clone, Debug, Deserialize)]
-struct TzWrapper(#[serde_as(as = "DisplayFromStr")] Tz);
-
 #[derive(Clone, Debug, Deserialize, Default)]
 struct Clock {
     name: Option<String>,
-    tz: Option<TzWrapper>,
+    tz: Option<Tz>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -119,9 +101,9 @@ fn main() -> Result<(), Error> {
         config_path
     }
     else {
-        dirs::home_dir()
-            .ok_or_else(|| anyhow!("Could not determine home directory"))?
-            .join(".config/worldclock.toml")
+        dirs::config_dir()
+            .ok_or_else(|| eyre!("Could not determine config directory"))?
+            .join("worldclock.toml")
     };
 
     let mut config: Config = toml::from_str(&std::fs::read_to_string(config_path)?)?;
@@ -147,4 +129,26 @@ fn main() -> Result<(), Error> {
     print_clocks(&config.clocks, time);
 
     Ok(())
+}
+
+
+/// Wrapper to implement Deserialize for [`Tz`].
+#[derive(Clone, Debug)]
+struct Tz(pub chrono_tz::Tz);
+
+impl Deref for Tz {
+    type Target = chrono_tz::Tz;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<'de> Deserialize<'de> for Tz {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de> {
+        let s: Cow<'de, str> = Deserialize::deserialize(deserializer)?;
+        s.parse().map(Self).map_err(serde::de::Error::custom)
+    }
 }
