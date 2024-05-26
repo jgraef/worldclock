@@ -1,5 +1,8 @@
 # World Clock
 
+[![crates.io](https://img.shields.io/crates/v/worldclock.svg)](https://crates.io/crates/worldclock)
+[![MIT](https://img.shields.io/crates/l/worldclock.svg)](./LICENSE)
+
 This is a small command-line application that shows the current time in multiple time zones.
 
 ## Config
