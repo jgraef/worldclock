@@ -106,7 +106,9 @@ fn main() -> Result<(), Error> {
             .join("worldclock.toml")
     };
 
-    let mut config: Config = toml::from_str(&std::fs::read_to_string(config_path)?)?;
+    let config_text = std::fs::read_to_string(&config_path)
+        .map_err(|e| eyre!("Could not open file: {}: {:#}", config_path.display(), e))?;
+    let mut config: Config = toml::from_str(&config_text)?;
 
     // If no clocks are specified, we will add a local one.
     if config.clocks.is_empty() {
