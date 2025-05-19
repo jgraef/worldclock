@@ -1,14 +1,27 @@
-use std::{borrow::Cow, ops::Deref, path::PathBuf};
+use std::{
+    borrow::Cow,
+    ops::Deref,
+    path::PathBuf,
+};
 
 use chrono::{
     DateTime,
     Local,
     Utc,
 };
-use prettytable::{format::consts::FORMAT_CLEAN, Attr, Cell, Row, Table};
+use color_eyre::eyre::{
+    eyre,
+    Error,
+};
+use prettytable::{
+    format::consts::FORMAT_CLEAN,
+    Attr,
+    Cell,
+    Row,
+    Table,
+};
 use serde::Deserialize;
 use structopt::StructOpt;
-use color_eyre::eyre::{eyre, Error};
 
 /// Shows the current time in multiple time zones.
 #[derive(Clone, Debug, StructOpt)]
@@ -133,7 +146,6 @@ fn main() -> Result<(), Error> {
     Ok(())
 }
 
-
 /// Wrapper to implement Deserialize for [`Tz`].
 #[derive(Clone, Debug)]
 struct Tz(pub chrono_tz::Tz);
@@ -149,7 +161,8 @@ impl Deref for Tz {
 impl<'de> Deserialize<'de> for Tz {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de> {
+        D: serde::Deserializer<'de>,
+    {
         let s: Cow<'de, str> = Deserialize::deserialize(deserializer)?;
         s.parse().map(Self).map_err(serde::de::Error::custom)
     }
