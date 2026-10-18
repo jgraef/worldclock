@@ -9,6 +9,7 @@ use chrono::{
     Local,
     Utc,
 };
+use clap::Parser;
 use color_eyre::eyre::{
     eyre,
     Error,
@@ -21,10 +22,10 @@ use prettytable::{
     Table,
 };
 use serde::Deserialize;
-use structopt::StructOpt;
 
 /// Shows the current time in multiple time zones.
-#[derive(Clone, Debug, StructOpt)]
+#[derive(Clone, Debug, Parser)]
+#[command(version, about, long_about = None)]
 struct Args {
     /// Path to config file that specifies the timezones you want to have
     /// displayed.PathBuf
@@ -53,16 +54,16 @@ struct Args {
     ///     [[clocks]]
     ///     name = "New York"
     ///     tz = "America/New_York"
-    #[structopt(verbatim_doc_comment, short, long)]
+    #[arg(verbatim_doc_comment, short, long, value_name = "CONFIG_FILE")]
     config: Option<PathBuf>,
     /*
     /// Instead of displaying the current time, use the specified time.
     // FIXME: Parse properly
-    #[structopt(short, long)]
+    #[arg(short, long)]
     time: Option<NaiveDateTime>,
 
     /// If `--time` is used, it will be interpreted as UTC.
-    #[structopt(short, long)]
+    #[arg(short, long)]
     utc: bool,
     */
 }
@@ -108,7 +109,7 @@ fn print_clocks(clocks: &[Clock], time: DateTime<Utc>) {
 }
 
 fn main() -> Result<(), Error> {
-    let args = Args::from_args();
+    let args = Args::parse();
 
     let config_path = if let Some(config_path) = args.config {
         config_path
