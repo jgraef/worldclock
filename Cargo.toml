@@ -4,8 +4,6 @@ version = "0.2.1"
 authors = ["Janosch Gräf <janosch.graef@gmail.com>"]
 edition = "2021"
 description = "A command-line world clock."
-readme = "README.md"
-homepage = "https://github.com/jgraef/worldclock"
 repository = "https://github.com/jgraef/worldclock"
 license = "MIT"
 
